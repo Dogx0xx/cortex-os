@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cortex Life OS v6.7.1</title>
+    <title>Cortex Life OS v6.7.3</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -26,7 +26,7 @@
         
         .container { max-width: 1400px; margin: 0 auto; padding-bottom: 50px; filter: blur(5px); transition: filter 0.3s; }
         
-        /* TELA DE LOGIN */
+        /* LOGIN */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999; display: flex; flex-direction: column;
@@ -54,11 +54,13 @@
         .card-title { color: var(--main-color); font-weight: bold; font-size: 1em; text-transform: uppercase; }
         .card-title.bio { color: var(--bio-color); }
         
-        /* ROADMAP */
+        /* ROADMAP FIX */
+        #roadmapList { min-height: 200px; } /* FORÇA ALTURA MÍNIMA */
         .roadmap-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #222; font-size: 0.9em; }
         .roadmap-checkbox { accent-color: var(--main-color); cursor: pointer; margin-right: 8px; }
         .tag { font-size: 0.7em; padding: 1px 5px; border-radius: 3px; background: #111; border: 1px solid #333; color: #666; }
         .tag.biz { color: var(--biz-color); border-color: #554400; }
+        .tag.tech { color: var(--main-color); border-color: #003300; } /* CORREÇÃO COR */
         
         /* BOTÕES */
         .action-btn { width: 100%; background: #111; color: #aaa; border: 1px solid #333; padding: 8px; margin-bottom: 5px; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; transition: all 0.1s; font-size: 0.85em; }
@@ -82,9 +84,11 @@
         .timer-controls { display: flex; gap: 5px; justify-content: center; }
         .btn-small { padding: 4px 10px; font-size: 0.75em; background: #151515; border: 1px solid #333; color: #888; cursor: pointer; border-radius: 3px; }
         input, select { background: #080808; border: 1px solid #333; color: #ccc; padding: 4px; font-family: inherit; border-radius: 3px; font-size: 0.85em; }
+        .manual-input-group { display: flex; gap: 5px; margin-bottom: 5px; }
         .weight-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; background: #111; padding: 5px; border-radius: 4px; }
         .log-container { max-height: 200px; overflow-y: auto; font-size: 0.8em; color: #888; border-top: 1px solid #333; margin-top: 10px; padding-top: 5px; }
         .log-item { padding: 3px 0; border-bottom: 1px solid #111; }
+        
         @media(max-width: 900px) { .ops-grid, .base-grid { grid-template-columns: 1fr; } header { flex-direction: column; text-align: center; } .status-mini { width: 100%; margin-top: 10px; text-align: center; } }
     </style>
 </head>
@@ -92,7 +96,7 @@
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h1 style="font-size:2em;">🔒 LOCKED</h1>
+        <h1 style="font-size:2em;">🔒 SYSTEM LOCKED</h1>
         <input type="password" id="passInput" class="login-input" placeholder="PIN">
         <br>
         <button class="login-btn" onclick="checkLogin()">ACESSAR</button>
@@ -104,8 +108,8 @@
     
     <header>
         <div>
-            <h1>CORTEX OS v6.7.1</h1>
-            <span style="font-size:0.75em; color:#555;">SECURE DASHBOARD</span>
+            <h1>CORTEX OS v6.7.3</h1>
+            <span style="font-size:0.75em; color:#555;">SECURE DASHBOARD (STABLE)</span>
         </div>
         <div class="status-mini">
             <div style="display:flex; justify-content:space-between; font-size:0.8em; color:#888;">
@@ -118,8 +122,11 @@
 
     <div class="ops-grid">
         <div class="card">
-            <div class="card-header"><span class="card-title">🏆 ROADMAP ESTRATÉGICO</span></div>
-            <div id="roadmapList" style="overflow-y:auto; flex-grow:1;"></div>
+            <div class="card-header">
+                <span class="card-title">🏆 ROADMAP ESTRATÉGICO</span>
+                <button class="btn-small" style="font-size:0.6em; border:none;" onclick="forceRestoreRoadmap()">RESTAURAR</button>
+            </div>
+            <div id="roadmapList" style="overflow-y:auto; flex-grow:1; min-height: 150px;"></div>
         </div>
 
         <div class="card">
@@ -133,9 +140,10 @@
             <button class="action-btn bio-btn" onclick="addXP(100, 'Tempo Família')"><span>👨‍👩‍👧‍👦 Família (Off)</span> <span class="xp-badge bio">+100</span></button>
             
             <div style="margin-top:auto; padding-top:10px; border-top:1px dashed #333;">
-                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <div class="manual-input-group">
                     <input type="text" id="manualTaskName" placeholder="Tarefa Manual" style="flex-grow:1;">
-                    <input type="number" id="manualTaskXP" placeholder="XP" value="20" style="width:60px;"> <button class="btn-small" onclick="submitManualTask()">OK</button>
+                    <input type="number" id="manualTaskXP" placeholder="XP" value="20" style="width:60px;">
+                    <button class="btn-small" onclick="submitManualTask()">OK</button>
                 </div>
                 <button class="action-btn danger-btn" style="padding:8px;" onclick="addXP(-500, '⛔ RECAÍDA')"><span>⛔ Recaída/Jogo</span> <span class="xp-badge danger">-500</span></button>
             </div>
@@ -196,15 +204,16 @@
                 <input type="file" id="fileUpload" style="display:none" onchange="uploadBackup(this)">
             </div>
             <div id="logContainer" class="log-container"></div>
-            <button class="btn-small" style="margin-top:10px; width:100%; border:none; color:#666;" onclick="changePassword()">🔑 ALTERAR SENHA</button>
+            <button class="btn-small" style="margin-top:10px; width:100%; border:none; color:#666;" onclick="changePassword()">🔑 SENHA</button>
             <button class="action-btn danger-btn" style="margin-top:10px; text-align:center;" onclick="resetAll()">☢️ RESET TOTAL</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- SEGURANÇA ---
+    // --- SAFE BOOT ---
     let userPIN = localStorage.getItem('cortexPIN') || "0000"; 
+    
     function checkLogin() {
         const input = document.getElementById('passInput').value;
         if (input === userPIN) {
@@ -212,6 +221,7 @@
             document.getElementById('mainApp').style.filter = 'none';
         } else { document.getElementById('loginMsg').innerText = "ACESSO NEGADO"; }
     }
+    
     function changePassword() {
         let newPin = prompt("Novo PIN:"); if (newPin && newPin.length > 0) {
             localStorage.setItem('cortexPIN', newPin); userPIN = newPin; alert("Senha alterada!");
@@ -243,17 +253,35 @@
     const monthNames = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
     window.onload = function() {
-        const saved = localStorage.getItem('cortexV66'); // v6.6
-        if (saved) {
-            let loaded = JSON.parse(saved);
-            state = { ...state, ...loaded };
-            defaultRoadmap.forEach(defItem => {
-                if (!state.roadmap.find(i => i.id === defItem.id)) state.roadmap.push(defItem);
-            });
-        }
-        initCalendarControls();
-        render(); renderCalendar();
+        try {
+            const saved = localStorage.getItem('cortexV67');
+            if (saved) {
+                let loaded = JSON.parse(saved);
+                state = { ...state, ...loaded };
+            }
+            
+            // CORREÇÃO AUTOMÁTICA: Se o roadmap estiver vazio ou corrompido, reseta ele
+            if (!state.roadmap || state.roadmap.length === 0) {
+                state.roadmap = JSON.parse(JSON.stringify(defaultRoadmap));
+            } else {
+                // Merge para novos itens
+                defaultRoadmap.forEach(defItem => {
+                    if (!state.roadmap.find(i => i.id === defItem.id)) state.roadmap.push(defItem);
+                });
+            }
+
+            initCalendarControls();
+            render(); renderCalendar();
+        } catch(e) { console.error(e); alert("Erro ao carregar dados."); }
     };
+
+    // --- FUNÇÃO DE FORÇA BRUTA (REPARO) ---
+    function forceRestoreRoadmap() {
+        if(confirm("Recriar lista do Roadmap? (Isso não apaga seu XP)")) {
+            state.roadmap = JSON.parse(JSON.stringify(defaultRoadmap));
+            save(); render();
+        }
+    }
 
     function changeMonth(delta) { viewDate.setMonth(viewDate.getMonth() + delta); renderCalendar(); }
 
@@ -300,8 +328,8 @@
 
     function submitManualTask() {
         const name = document.getElementById('manualTaskName').value;
-        const xp = parseInt(document.getElementById('manualTaskXP').value); // AGORA VAI LER CORRETAMENTE
-        if(!name || isNaN(xp)) return alert("Preencha Nome e XP");
+        const xp = parseInt(document.getElementById('manualTaskXP').value);
+        if(!name || isNaN(xp)) return;
         addXP(xp, name);
         document.getElementById('manualTaskName').value = "";
     }
@@ -349,11 +377,15 @@
         document.getElementById('rankDisplay').innerText = ranks[rIndex];
 
         let roadHtml = "";
-        state.roadmap.forEach(item => {
-            let tagClass = item.type === 'biz' ? 'tag biz' : 'tag tech';
-            let nameStyle = item.type === 'biz' ? 'color: var(--biz-color);' : '';
-            roadHtml += `<div class="roadmap-item ${item.done ? 'done' : ''}"><label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" class="roadmap-checkbox" onchange="toggleRoadmap('${item.id}')" ${item.done ? 'checked' : ''}><span style="${nameStyle}">${item.name}</span></label><span class="${tagClass}">+${item.xp} XP</span></div>`;
-        });
+        if (state.roadmap && state.roadmap.length > 0) {
+            state.roadmap.forEach(item => {
+                let tagClass = item.type === 'biz' ? 'tag biz' : 'tag tech';
+                let nameStyle = item.type === 'biz' ? 'color: var(--biz-color);' : '';
+                roadHtml += `<div class="roadmap-item ${item.done ? 'done' : ''}"><label style="display:flex; align-items:center; cursor:pointer;"><input type="checkbox" class="roadmap-checkbox" onchange="toggleRoadmap('${item.id}')" ${item.done ? 'checked' : ''}><span style="${nameStyle}">${item.name}</span></label><span class="${tagClass}">+${item.xp} XP</span></div>`;
+            });
+        } else {
+            roadHtml = "<div style='padding:10px; color:#666;'>Roadmap vazio. Clique em RESTAURAR.</div>";
+        }
         document.getElementById('roadmapList').innerHTML = roadHtml;
 
         if (state.weight.start > 0) {
@@ -369,7 +401,7 @@
         document.getElementById('logContainer').innerHTML = state.history.map(h => `<div class="log-item">${h}</div>`).join('');
     }
 
-    function save() { localStorage.setItem('cortexV66', JSON.stringify(state)); }
+    function save() { localStorage.setItem('cortexV67', JSON.stringify(state)); }
     function downloadBackup() {
         const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
         const el = document.createElement('a'); el.setAttribute("href", data); el.setAttribute("download", "cortex_backup.json");
@@ -382,7 +414,7 @@
             try { state = JSON.parse(e.target.result); defaultRoadmap.forEach(defItem => { if (!state.roadmap.find(i => i.id === defItem.id)) state.roadmap.push(defItem); }); save(); render(); renderCalendar(); alert("OK!"); } catch(e) { alert("Erro"); }
         }; reader.readAsText(file);
     }
-    function resetAll() { if(confirm("RESET?")) { localStorage.removeItem('cortexV66'); location.reload(); } }
+    function resetAll() { if(confirm("RESET?")) { localStorage.removeItem('cortexV67'); location.reload(); } }
 
     let timerInt, timeLeft = 1500;
     function updateT() {
